@@ -1,8 +1,10 @@
+import os
 from dotenv import load_dotenv
-load_dotenv()
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
+load_dotenv()
 
 from app.chat.router import router as chat_router
 from app.ingest.api import router as ingest_router
@@ -17,7 +19,7 @@ app = FastAPI(
 # ✅ CORS (Frontend = 3000, Backend = 8000)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,6 +34,10 @@ app.include_router(query_router, prefix="/query", tags=["query"])
 async def health_check():
     return {"status": "healthy"}
 
+
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000))
+    )
